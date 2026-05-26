@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minimalist Pomodoro Timer</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .timer-card {
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            text-align: center;
+            width: 300px;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 5px;
+            font-size: 24px;
+        }
+        .status {
+            color: #e74c3c;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+        .time-display {
+            font-size: 64px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin: 20px 0;
+            font-variant-numeric: tabular-nums;
+        }
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        button {
+            padding: 12px 24px;
+            font-size: 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        .btn-start { background: #e74c3c; color: white; }
+        .btn-start:hover { background: #c0392b; }
+        .btn-reset { background: #bdc3c7; color: #333; }
+        .btn-reset:hover { background: #95a5a6; }
+    </style>
+</head>
+<body>
+
+<div class="timer-card">
+    <h1>Focus Time</h1>
+    <div class="status" id="status-text">Work Session</div>
+    <div class="time-display" id="timer">25:00</div>
+    <div class="btn-group">
+        <button class="btn-start" id="start-btn">Start</button>
+        <button class="btn-reset" id="reset-btn">Reset</button>
+    </div>
+</div>
+
+<script>
+    let timeLeft = 25 * 60; // 25 minutes in seconds
+    let timerId = null;
+    let isWorkSession = true;
+
+    const timerDisplay = document.getElementById('timer');
+    const startBtn = document.getElementById('start-btn');
+    const resetBtn = document.getElementById('reset-btn');
+    const statusText = document.getElementById('status-text');
+
+    function updateDisplay() {
+        const minutes = Math.floor(timeLeft / 60);
+        const seconds = timeLeft % 60;
+        timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    }
+
+    function toggleTimer() {
+        if (timerId === null) {
+            // Start
+            startBtn.textContent = 'Pause';
+            startBtn.style.background = '#f39c12';
+            timerId = setInterval(() => {
+                timeLeft--;
+                updateDisplay();
+                if (timeLeft === 0) {
+                    clearInterval(timerId);
+                    timerId = null;
+                    alert(isWorkSession ? 'Time for a break!' : 'Back to work!');
+                    isWorkSession = !isWorkSession;
+                    timeLeft = isWorkSession ? 25 * 60 : 5 * 60;
+                    statusText.textContent = isWorkSession ? 'Work Session' : 'Short Break';
+                    statusText.style.color = isWorkSession ? '#e74c3c' : '#2ecc71';
+                    startBtn.textContent = 'Start';
+                    startBtn.style.background = isWorkSession ? '#e74c3c' : '#2ecc71';
+                    updateDisplay();
+                }
+            }, 1000);
+        } else {
+            // Pause
+            clearInterval(timerId);
+            timerId = null;
+            startBtn.textContent = 'Start';
+            startBtn.style.background = isWorkSession ? '#e74c3c' : '#2ecc71';
+        }
+    }
+
+    function resetTimer() {
+        clearInterval(timerId);
+        timerId = null;
+        isWorkSession = true;
+        timeLeft = 25 * 60;
+        statusText.textContent = 'Work Session';
+        statusText.style.color = '#e74c3c';
+        startBtn.textContent = 'Start';
+        startBtn.style.background = '#e74c3c';
+        updateDisplay();
+    }
+
+    startBtn.addEventListener('click', toggleTimer);
+    resetBtn.addEventListener('click', resetTimer);
+</script>
+
+</body>
+</html>
